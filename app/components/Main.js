@@ -1,16 +1,34 @@
 import React from 'react';
 import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity, KeyboardAvoidingView } from 'react-native';
 import Note from './Note';
+import { AsyncStorage } from 'react-native';
 
 export default class Main extends React.Component {
     constructor(props) {
         super(props);
+        this.displayData();//AsyncStorage.getItem('notes');
+        // console.log(a);
         this.state = {
+            // noteArray: [],
             noteArray: [{date:"1/1/1989",note:"Mimic Ms. Anna",isComplete:false},
             {date:"13/12/1989",note:"Send Daily Spam",isComplete:true}],
             noteText: '',
             editing: false,
             editingKey: null,
+        }
+    }
+
+    displayData = async() => {
+        try {
+            console.log('asdasdasd');
+            a = await AsyncStorage.getItem('notes');
+            console.log(a);
+            alert(a);
+            // this.setState({ noteArray: JSON.parse(a) })
+            
+        }
+        catch (error) {
+            alert(error);
         }
     }
     
@@ -42,10 +60,7 @@ export default class Main extends React.Component {
                     value={this.state.noteText}
                     placeholder='Type your task!'
                     placeholderTextColor='white'
-                    underlineColorAndroid='transparent'
-                    autoFocus={this.editing}
-                    // focus={this.state.editing}
-                    >
+                    underlineColorAndroid='transparent'>
 
                     </TextInput>
                     
@@ -71,6 +86,10 @@ export default class Main extends React.Component {
             });
             this.setState({ noteArray: this.state.noteArray })
             this.setState({ noteText: '' });
+            // AsyncStorage.removeItem('notes');
+            AsyncStorage.setItem('notes', JSON.stringify(this.state.noteArray));
+            console.log(JSON.stringify(this.state.noteArray));
+            console.log('saved');
         }
     }
 
@@ -79,23 +98,27 @@ export default class Main extends React.Component {
             this.state.noteArray[this.state.editingKey].note = this.state.noteText
             this.setState({ noteArray: this.state.noteArray, editing: false, editingKey: null })
             this.setState({ noteText: '' });
+            AsyncStorage.setItem('notes', this.state.noteArray);
         }
     }
 
     deleteNote(key) {
         this.state.noteArray.splice(key, 1);
         this.setState({ noteArray: this.state.noteArray })
+        AsyncStorage.setItem('notes', this.state.noteArray);
     }
 
     editNote(key) {
         this.state.editing= true;
         this.setState({ editing: this.state.editing, editingKey: key })
         this.editTextInput.focus();
+        AsyncStorage.setItem('notes', this.state.noteArray);
     }
 
     doneNote(key) {
         this.state.noteArray[key].isComplete = true;
         this.setState({ noteArray: this.state.noteArray })
+        AsyncStorage.setItem('notes', this.state.noteArray);
     }
 
 }
