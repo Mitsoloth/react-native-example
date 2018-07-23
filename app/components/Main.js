@@ -1,13 +1,16 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity, KeyboardAvoidingView } from 'react-native';
 import Note from './Note';
 
 export default class Main extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            noteArray: [],
+            noteArray: [{date:"1/1/1989",note:"Mimic Ms. Anna",isComplete:false},
+            {date:"13/12/1989",note:"Send Daily Spam",isComplete:true}],
             noteText: '',
+            editing: false,
+            editingKey: null,
         }
     }
     
@@ -15,37 +18,86 @@ export default class Main extends React.Component {
 
         let notes = this.state.noteArray.map((val,key) => {
             return <Note key={key} keyval={key} val={val}
-            deleteMethod={ ()=> this.deleteNote(key)} />
+            deleteMethod={ ()=> this.deleteNote(key)} editMethod={ ()=> this.editNote(key)} doneMethod={ ()=> this.doneNote(key)} />
         })
 
         return (
             <View style={styles.container}>
                 <View style={styles.header}>
-                    <Text style={styles.headerText}> NOTER</Text>    
+                    <Text style={styles.headerText}> My Todo App!</Text>    
                 </View>
 
+                
                 <ScrollView style={styles.scrollContainer}>
+                    {notes}
                 </ScrollView>
 
-                <View style={styles.footer}>
+                
+                <KeyboardAvoidingView style={styles.footer} behavior="padding" enabled>
+                    
                     <TextInput
+                    ref={(input) => { this.editTextInput = input; }}
                     style={styles.textInput}
                     onChangeText={(noteText) => this.setState({noteText})}
                     value={this.state.noteText}
-                    placeholder='>note'
+                    placeholder='Type your task!'
                     placeholderTextColor='white'
-                    underlineColorAndroid='transparent'>
+                    underlineColorAndroid='transparent'
+                    autoFocus={this.editing}
+                    // focus={this.state.editing}
+                    >
 
                     </TextInput>
-                </View>
+                    
+                </KeyboardAvoidingView>
 
-                <TouchableOpacity onPress={ this.addNote.bind(this)} style={styles.addButton}>
-                    <Text style={styles.addButtonText}>+</Text>
+                <TouchableOpacity onPress={this.state.editing ? this.saveNote.bind(this) : this.addNote.bind(this)} style={styles.addButton}>
+                    <Text style={styles.addButtonText}>{this.state.editing ? 'Save' : 'New'}</Text>
                 </TouchableOpacity>
 
             </View>
         )
     }
+
+    addNote() {
+        if (this.state.noteText) {
+            var d = new Date();
+            this.state.noteArray.push({
+                'date': d.getFullYear() +
+                "/" + (d.getMonth() + 1) +
+                "/" + d.getDate(),
+                'note': this.state.noteText,
+                'isComplete': false,
+            });
+            this.setState({ noteArray: this.state.noteArray })
+            this.setState({ noteText: '' });
+        }
+    }
+
+    saveNote(key) {
+        if (this.state.noteText) {
+            this.state.noteArray[this.state.editingKey].note = this.state.noteText
+            this.setState({ noteArray: this.state.noteArray, editing: false, editingKey: null })
+            this.setState({ noteText: '' });
+        }
+    }
+
+    deleteNote(key) {
+        this.state.noteArray.splice(key, 1);
+        this.setState({ noteArray: this.state.noteArray })
+    }
+
+    editNote(key) {
+        this.state.editing= true;
+        this.setState({ editing: this.state.editing, editingKey: key })
+        this.editTextInput.focus();
+    }
+
+    doneNote(key) {
+        this.state.noteArray[key].isComplete = true;
+        this.setState({ noteArray: this.state.noteArray })
+    }
+
 }
 
 const styles = StyleSheet.create({
