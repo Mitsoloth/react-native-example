@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TextInput, ScrollView, Image, TouchableOpacity } from 'react-native';
 
 export default class Note extends React.Component {
     render(){
@@ -10,13 +10,15 @@ export default class Note extends React.Component {
                 <Text style={[styles.noteText, {borderLeftColor: this.props.val.isComplete ? 'green' : 'red'}]}>{this.props.val.note}</Text>
 
                 <TouchableOpacity onPress={this.props.deleteMethod} style={styles.noteDelete}>
-                    <Text style={styles.noteDeleteText}>D</Text>
+                    {/* <Text style={styles.noteDeleteText}>D</Text> */}
+                    <Image source={require('./images/delete.png')} style={{width:25, height:25}} />
                 </TouchableOpacity>
-
+                {!this.props.val.isComplete ?
                 <TouchableOpacity onPress={this.props.editMethod} style={styles.noteEdit}>
-                    <Text style={styles.noteEditText}>M</Text>
-                </TouchableOpacity>
-
+                    <Image source={require('./images/edit.png')} style={{width:25, height:25}} />
+                </TouchableOpacity> : null
+                
+                }
                 {this.props.val.isComplete ?
                 <TouchableOpacity onPress={this.props.deleteMethod} style={styles.noteDone}>
                     <Text style={styles.noteDoneText}>Clear</Text>
@@ -47,7 +49,8 @@ const styles = StyleSheet.create({
         position: 'absolute',
         justifyContent: 'center',
         alignItems : 'center',
-        backgroundColor: '#2980b9',
+        // backgroundColor: '#2980b9',
+        backgroundColor: '#FFFFFF',
         padding: 10,
         top: 10,
         bottom: 10,
@@ -60,11 +63,12 @@ const styles = StyleSheet.create({
         position: 'absolute',
         justifyContent: 'center',
         alignItems : 'center',
-        backgroundColor: '#2980b9',
+        // backgroundColor: '#2980b9',
+        backgroundColor: '#FFFFFF',
         padding: 10,
         top: 10,
         bottom: 10,
-        right: 40,
+        right: 50,
     },
     noteEditText: {
         color: 'yellow',

@@ -6,26 +6,21 @@ import { AsyncStorage } from 'react-native';
 export default class Main extends React.Component {
     constructor(props) {
         super(props);
-        this.displayData();//AsyncStorage.getItem('notes');
-        // console.log(a);
         this.state = {
-            // noteArray: [],
-            noteArray: [{date:"1/1/1989",note:"Mimic Ms. Anna",isComplete:false},
-            {date:"13/12/1989",note:"Send Daily Spam",isComplete:true}],
+            noteArray: [],
+            // noteArray: [{date:"1/1/1989",note:"Mimic Ms. Anna",isComplete:false},
+            // {date:"13/12/1989",note:"Send Daily Spam",isComplete:true}],
             noteText: '',
             editing: false,
-            editingKey: null,
+            editingVal: null,
         }
+        this.displayData();
     }
 
     displayData = async() => {
         try {
-            console.log('asdasdasd');
-            a = await AsyncStorage.getItem('notes');
-            console.log(a);
-            alert(a);
-            // this.setState({ noteArray: JSON.parse(a) })
-            
+            storedNotes = await AsyncStorage.getItem('notes');
+            this.setState({ noteArray: JSON.parse(storedNotes) })
         }
         catch (error) {
             alert(error);
@@ -36,7 +31,7 @@ export default class Main extends React.Component {
 
         let notes = this.state.noteArray.map((val,key) => {
             return <Note key={key} keyval={key} val={val}
-            deleteMethod={ ()=> this.deleteNote(key)} editMethod={ ()=> this.editNote(key)} doneMethod={ ()=> this.doneNote(key)} />
+            deleteMethod={ ()=> this.deleteNote(val)} editMethod={ ()=> this.editNote(val)} doneMethod={ ()=> this.doneNote(val)} />
         })
 
         return (
@@ -68,6 +63,7 @@ export default class Main extends React.Component {
 
                 <TouchableOpacity onPress={this.state.editing ? this.saveNote.bind(this) : this.addNote.bind(this)} style={styles.addButton}>
                     <Text style={styles.addButtonText}>{this.state.editing ? 'Save' : 'New'}</Text>
+
                 </TouchableOpacity>
 
             </View>
@@ -77,48 +73,54 @@ export default class Main extends React.Component {
     addNote() {
         if (this.state.noteText) {
             var d = new Date();
-            this.state.noteArray.push({
-                'date': d.getFullYear() +
-                "/" + (d.getMonth() + 1) +
-                "/" + d.getDate(),
-                'note': this.state.noteText,
-                'isComplete': false,
-            });
-            this.setState({ noteArray: this.state.noteArray })
-            this.setState({ noteText: '' });
-            // AsyncStorage.removeItem('notes');
+
+            const newNote = {
+                date: `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`,
+                note: this.state.noteText,
+                isComplete: false,
+            };
+            const noteArray = [...this.state.noteArray, newNote]
+
+            this.setState({ noteArray, noteText: '' })
+                        
             AsyncStorage.setItem('notes', JSON.stringify(this.state.noteArray));
-            console.log(JSON.stringify(this.state.noteArray));
-            console.log('saved');
         }
     }
 
-    saveNote(key) {
+    saveNote() {
         if (this.state.noteText) {
-            this.state.noteArray[this.state.editingKey].note = this.state.noteText
-            this.setState({ noteArray: this.state.noteArray, editing: false, editingKey: null })
+
+            const noteArray = this.state.noteArray.map(i => {
+                return i !== this.state.editingVal ? i : {...i, note: this.state.noteText}
+            })
+
+            this.setState({ noteArray, editing: false, editingVal: null })
             this.setState({ noteText: '' });
-            AsyncStorage.setItem('notes', this.state.noteArray);
+            AsyncStorage.setItem('notes', JSON.stringify(this.state.noteArray));
         }
     }
 
-    deleteNote(key) {
-        this.state.noteArray.splice(key, 1);
-        this.setState({ noteArray: this.state.noteArray })
-        AsyncStorage.setItem('notes', this.state.noteArray);
+    deleteNote(val) {
+        const noteArray = this.state.noteArray.filter(i => i != val)
+
+        this.setState({ noteArray })
+        AsyncStorage.setItem('notes', JSON.stringify(noteArray));
     }
 
-    editNote(key) {
+    editNote(val) {
         this.state.editing= true;
-        this.setState({ editing: this.state.editing, editingKey: key })
+        this.setState({ editing: this.state.editing, editingVal: val })
         this.editTextInput.focus();
-        AsyncStorage.setItem('notes', this.state.noteArray);
+        AsyncStorage.setItem('notes', JSON.stringify(this.state.noteArray));
     }
 
-    doneNote(key) {
-        this.state.noteArray[key].isComplete = true;
-        this.setState({ noteArray: this.state.noteArray })
-        AsyncStorage.setItem('notes', this.state.noteArray);
+    doneNote(val) {
+        const noteArray = this.state.noteArray.map(i => {
+            return i !== val ? i : {...i, isComplete: true}
+        })
+        
+        this.setState({ noteArray })
+        AsyncStorage.setItem('notes', JSON.stringify(noteArray));
     }
 
 }
