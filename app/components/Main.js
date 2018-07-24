@@ -17,7 +17,7 @@ export default class Main extends React.Component {
         this.displayData();
     }
 
-    displayData = async() => {
+    displayData = async () => {
         try {
             storedNotes = await AsyncStorage.getItem('notes');
             this.setState({ noteArray: JSON.parse(storedNotes) })
@@ -26,39 +26,39 @@ export default class Main extends React.Component {
             alert(error);
         }
     }
-    
-    render(){
 
-        let notes = this.state.noteArray.map((val,key) => {
+    render() {
+
+        let notes = this.state.noteArray.map((val, key) => {
             return <Note key={key} keyval={key} val={val}
-            deleteMethod={ ()=> this.deleteNote(val)} editMethod={ ()=> this.editNote(val)} doneMethod={ ()=> this.doneNote(val)} />
+                deleteMethod={() => this.deleteNote(val)} editMethod={() => this.editNote(val)} doneMethod={() => this.doneNote(val)} />
         })
 
         return (
             <View style={styles.container}>
                 <View style={styles.header}>
-                    <Text style={styles.headerText}> My Todo App!</Text>    
+                    <Text style={styles.headerText}> My Todo App!</Text>
                 </View>
 
-                
+
                 <ScrollView style={styles.scrollContainer}>
                     {notes}
                 </ScrollView>
 
-                
+
                 <KeyboardAvoidingView style={styles.footer} behavior="padding" enabled>
-                    
+
                     <TextInput
-                    ref={(input) => { this.editTextInput = input; }}
-                    style={styles.textInput}
-                    onChangeText={(noteText) => this.setState({noteText})}
-                    value={this.state.noteText}
-                    placeholder='Type your task!'
-                    placeholderTextColor='white'
-                    underlineColorAndroid='transparent'>
+                        ref={(input) => { this.editTextInput = input; }}
+                        style={styles.textInput}
+                        onChangeText={(noteText) => this.setState({ noteText })}
+                        value={this.state.noteText}
+                        placeholder='Type your task!'
+                        placeholderTextColor='white'
+                        underlineColorAndroid='transparent'>
 
                     </TextInput>
-                    
+
                 </KeyboardAvoidingView>
 
                 <TouchableOpacity onPress={this.state.editing ? this.saveNote.bind(this) : this.addNote.bind(this)} style={styles.addButton}>
@@ -82,7 +82,7 @@ export default class Main extends React.Component {
             const noteArray = [...this.state.noteArray, newNote]
 
             this.setState({ noteArray, noteText: '' })
-                        
+
             AsyncStorage.setItem('notes', JSON.stringify(this.state.noteArray));
         }
     }
@@ -91,7 +91,7 @@ export default class Main extends React.Component {
         if (this.state.noteText) {
 
             const noteArray = this.state.noteArray.map(i => {
-                return i !== this.state.editingVal ? i : {...i, note: this.state.noteText}
+                return i !== this.state.editingVal ? i : { ...i, note: this.state.noteText }
             })
 
             this.setState({ noteArray, editing: false, editingVal: null })
@@ -108,7 +108,7 @@ export default class Main extends React.Component {
     }
 
     editNote(val) {
-        this.state.editing= true;
+        this.state.editing = true;
         this.setState({ editing: this.state.editing, editingVal: val })
         this.editTextInput.focus();
         AsyncStorage.setItem('notes', JSON.stringify(this.state.noteArray));
@@ -116,9 +116,9 @@ export default class Main extends React.Component {
 
     doneNote(val) {
         const noteArray = this.state.noteArray.map(i => {
-            return i !== val ? i : {...i, isComplete: true}
+            return i !== val ? i : { ...i, isComplete: true }
         })
-        
+
         this.setState({ noteArray })
         AsyncStorage.setItem('notes', JSON.stringify(noteArray));
     }
@@ -127,7 +127,7 @@ export default class Main extends React.Component {
 
 const styles = StyleSheet.create({
     container: {
-        flex:1,
+        flex: 1,
     },
     header: {
         backgroundColor: '#4286f4',
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
         padding: 26,
     },
     scrollContainer: {
-        flex:1,
+        flex: 1,
         marginBottom: 100,
     },
     footer: {
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
         bottom: 40,
         left: 0,
         right: 0,
-        zIndex:10,
+        zIndex: 10,
     },
     textInput: {
         alignSelf: 'stretch',
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
         right: 20,
         bottom: 90,
         backgroundColor: '#4286f4',
-        width:90,
+        width: 90,
         height: 90,
         borderRadius: 50,
         alignItems: 'center',
